@@ -2,7 +2,7 @@
 
 The U-Net! Released in 2015, [the original literature covering the U-Net architecture](https://arxiv.org/abs/1505.04597) celebrated its success with biomedical image segmentation, a field lacking sufficient annotated data. The U-Net model outperformed previous [SOTA](https://github.com/ejohansson13/concepts_explained/blob/main/Acronyms.md) image segmentation networks despite having a training set of only 30 images. Researchers realized the efficiency of the U-Net could be implemented to combat other computer vision issues and, in 2022, [High Resolution Image Synthesis with Latent Diffusion Models](https://arxiv.org/abs/2112.10752) was released and Stable Diffusion took the world by storm. In this space, we will discuss the U-Net architecture, how it functions, and what makes it such a fantastic tool for image processing applications.
 
-![A screenshot of the UNet architecture from its corresponding 2015 research paper](/UNet/Images/unet_architecture.png)
+![A screenshot of the UNet architecture from its corresponding 2015 research paper](/Images/unet_architecture.png)
 # Architecture
 
 ## Contracting Path (Encoder)
@@ -12,32 +12,32 @@ As you can see in the above image, the U-Net derives its name from its signature
 ### Convolution
 Convolution is the application of a filter to an input matrix for the purpose of highlighting relevant features. The input matrix will be the image, where each image pixel is represented by a cell in our matrix. Repeated applications of these convolutional filters allow us to distinguish the truly important features in an image. For the example below, the filter will only contain one kernel. Here, a 3x3 kernel will be applied to a 6x6 matrix representing the image. The entire convolutional operation can be seen directly below, but we'll soon examine each stage of the operation in more detail.
 
-![An end-to-end convolution example of convolution between a 6x6 matrix and a 3x3 convolutional layer](/UNet/Images/convolution_with_calculations.png)
+![An end-to-end convolution example of convolution between a 6x6 matrix and a 3x3 convolutional layer](/Images/convolution_with_calculations.png)
 
 It's important to mention that the kernel values will be learned through training of the network and will be updated throughout the learning process. We can initialize the kernel values, but the network itself takes responsibility to learn the best values to distinguish important features in the training images. We take the 3x3 kernel given above and perform convolution between the kernel (highlighted here in yellow) and a matrix subset (highlighted in blue). All we are doing here is multiplying each element of the submatrix with the corresponding kernel element.
 
 In the first stage, -1(1) + 2(2) + -3(3) + 4(0) + 5(1) + -6(0) + 7(1) + -8(2) + 9(3) = 37. We add up each product between the kernel and matrix elements and the sum for this specific subset becomes the first element in the output matrix (highlighted in green). Here, that's 37. We repeat this throughout the input matrix until we have a complete output. Think of a kaleidoscope. We have an optical instrument which can be rotated to produce changing optical effects until we have the complete picture. The input matrix is the colored glass at the bottom. The convolutional kernel takes the role of the mirrors within the kaleidoscope that we rotate to better understand the glass we are looking at. 
 <p align="center" width="100%">
   Initially, we see one stage of the picture. <br>
-  <img src="/UNet/Images/cwc_first_stage.png" alt="First stage of a convolution operation between a matrix and a kernel" width="25%">
+  <img src="/Images/cwc_first_stage.png" alt="First stage of a convolution operation between a matrix and a kernel" width="25%">
 </p>
 
 <p align="center" width="100%">
   We rotate a mirror and see the next stage. The submatrix changes, shifting to the right by one element. <br>
-  <img src="/UNet/Images/cwc_second_stage.png" alt="Second stage of a convolution operation between a matrix and a kernel" width="25%"> 
+  <img src="/Images/cwc_second_stage.png" alt="Second stage of a convolution operation between a matrix and a kernel" width="25%"> 
 </p>
  
 <p align="center" width="100%">
   We rotate the mirror and shift the submatrix by another element. <br>
-  <img src="/UNet/Images/cwc_third_stage.png" alt="Third stage of a convolution operation between a matrix and a kernel" width="25%">  
+  <img src="/Images/cwc_third_stage.png" alt="Third stage of a convolution operation between a matrix and a kernel" width="25%">  
 </p>
 
 <p align="center" width="100%">
   And again, completing the topmost row. For every step in the convolutional operation, the relevant submatrix will be in blue.<br>
-  <img src="/UNet/Images/cwc_fourth_stage.png" alt="Fourth stage of a convolution operation between a matrix and a kernel" width="25%">  
+  <img src="/Images/cwc_fourth_stage.png" alt="Fourth stage of a convolution operation between a matrix and a kernel" width="25%">  
 </p>
 
-So far, we have only been looking at the top row of the kaleidoscope image. And so we shift the lens down slightly to the next stage. Accordingly, the submatrix shifts down one row, and we repeat the above process for the next matrix row. A lot of the image will look the same but we have swapped the topmost row for the next row down. ![Second row of a convolution operation between a matrix and a kernel](/UNet/Images/cwc_second_row.png) We complete the second row, shift down, and perform the same operations on the third row of the matrix. ![Third row of a convolution operation between a matrix and a kernel](/UNet/Images/cwc_third_row.png) We shift down another row and arrive at all the information our kaleidoscope has to offer and correspondingly all the information the kernel has taken from the input matrix. ![Fourth row of a convolution operation between a matrix and a kernel](/UNet/Images/cwc_fourth_row.png) 
+So far, we have only been looking at the top row of the kaleidoscope image. And so we shift the lens down slightly to the next stage. Accordingly, the submatrix shifts down one row, and we repeat the above process for the next matrix row. A lot of the image will look the same but we have swapped the topmost row for the next row down. ![Second row of a convolution operation between a matrix and a kernel](/Images/cwc_second_row.png) We complete the second row, shift down, and perform the same operations on the third row of the matrix. ![Third row of a convolution operation between a matrix and a kernel](/Images/cwc_third_row.png) We shift down another row and arrive at all the information our kaleidoscope has to offer and correspondingly all the information the kernel has taken from the input matrix. ![Fourth row of a convolution operation between a matrix and a kernel](/Images/cwc_fourth_row.png) 
 Our 6x6 input matrix is convolved to 4x4. As we move the kernel around the input matrix, we lose out on the edge most matrix elements. Convolution discards the edges of the image due to the incomplete context around those pixels.
 
 #### Stride, Padding, and Kernel Size
@@ -47,19 +47,19 @@ There are options to remedy the loss of information around the border of images.
 ##### Stride
 Stride determines how the kernel moves around the input matrix. In our example above, a 3x3 kernel filtered the 6x6 input matrix. The kernel shifted by one value as it maneuvered through the matrix. It operated with a stride of 1. Each submatrix that interacted with the kernel is highlighted in blue below.
 <p align="center" width="100%">
-  <img src="/UNet/Images/convolution_stride_1.png" width="55%">
+  <img src="/Images/convolution_stride_1.png" width="55%">
 </p>
 
 The kernel operated with a stride of 1, shifting by one column or row for each operation. If the kernel operated with a stride of 2, it would "skip" a column and operate on the next 3x3 submatrix. Let's look at the progression of a kernel with a stride of 3.
 
 <p align="center" width="100%">
-  <img src="/UNet/Images/convolution_stride_3.png" width="55%">
+  <img src="/Images/convolution_stride_3.png" width="55%">
 </p>
 
 The kernel starts with the same initial submatrix. Then, it shifts by 3 to the next submatrix. Reaching the end of the row, it shifts down. With a stride of 1, it would shift down by one row. With a stride of 3, it shifts down by three rows. That submatrix is convolved, before the kernel shifts horizontally by another 3 columns and arrives at the end of the input matrix. This leaves far fewer submatrices that interact with the kernel, affecting the output matrix size. We can visualize this below.
 
 <p align="center" width="100%">
-  <img src="/UNet/Images/convolution_stride_3_result.png" width="55%">
+  <img src="/Images/convolution_stride_3_result.png" width="55%">
 </p>
 
 The initial convolution operation with a stride of 1 gave an output matrix of 4x4. With a stride of 3, the same convolutional kernel outputs a 2x2 matrix. Changing the stride changes the number of opportunities the kernel has to interact with the input matrix elements. With a stride of 3, it still touches every matrix element, but there are no overlapping values in the submatrices. Each 3x3 submatrix is selected and convolved, then a new submatrix is selected. 
@@ -70,26 +70,26 @@ In contrast, convolution with a stride of 1 had multiple overlapping values betw
 Another convolutional element is padding. Padding also affects the size of the convolutional output. In our initial example, we convolve a 6x6 input matrix to a 4x4 output matrix. Some information on the border of the matrix is lost. The impact of values along the edge of the matrix are minimized as they have fewer options to interact with the kernel. To mitigate the loss, we can employ padding. Padding insulates the input matrix by appending it with rows and columns of additional data. The additional data increases the number of interactions between the border values and the convolutional kernel. We’ll look at two padding methods: mirroring and padding with zeros.
 
 <p align="center" width="100%">
-  <img src="/UNet/Images/convolution_padding_mirror.png" width="35%">
+  <img src="/Images/convolution_padding_mirror.png" width="35%">
 </p>
 
 Mirroring, as seen above, copies adjacent outer elements. The intuition behind mirroring is extending the matrix with identical values to those along the border, ensuring the padded values follow the same distribution as the original matrix values. In the example above, we padded by 1. We added 1 row on top of the matrix, 1 row along the bottom, 1 column to the left of our matrix, and 1 column to the right. We can pad by any number, up to duplicating the matrix height and width. Beyond that, there is no additional data to mirror. In the U-Net paper, input images were padded from 512x512 to 572x572 to preserve image feature dimensions as they were downsampled. The last 30 rows and columns of the input matrix were mirrored and padded.
 
 <p align="center" width="100%">
-  <img src="/UNet/Images/convolution_padding_zeros.png" width="35%">
+  <img src="/Images/convolution_padding_zeros.png" width="35%">
 </p>
 
 An alternative option is padding with zeros. Padding with zeros is demonstrated above. We append the input matrix with zeros along the border, extending the data to have a greater impact in convolutions. Padding with zeros diverges from mirroring in the emphasis placed along the border values. While mirroring emphasizes homogeneity in the extension of the input data, padding with zeros devalues the introduction of new values, directing the kernel's focus to the original matrix data.
 
 <p align="center" width="100%">
-  <img src="/UNet/Images/convolution_padding_results.png" width="50%">
+  <img src="/Images/convolution_padding_results.png" width="50%">
 </p>
 
 The results of both padding operations when convolved with a 3x3 kernel are illustrated above.
 Both output matrices have the same height and width as their input matrices. Padding by 1 preserves the dimensionality of the input and prevents any downsizing of data. Logically, the differences lie on the matrix edges. This is where the input matrices were padded and this is the location of their distinctions. The inner 4x4 matrices of both outputs are identical. They’re also equal to the original 4x4 output matrix from our convolution without padding, revisited below. 
 
 <p align="center" width="100%">
-  <img src="/UNet/Images/convolution_original_result.png" width="40%">
+  <img src="/Images/convolution_original_result.png" width="40%">
 </p>
 
 Padding controls the height and width of the output matrix without affecting the core values propagated through the network. Controlling the amount padded to the input matrix controls the size of the output matrix. Padding offers a quick and easy solution to preserve dimensionality throughout convolutional operations. There is no concern of data distortion with padding. Padding symmetrically centers the input data and appends additional values to the edges of the matrix. Padding by too much propagates nonsensical values along the edges of the output matrices. For that reason, the amount of padding is normally proportional to the input matrix size. 
@@ -98,13 +98,13 @@ Padding controls the height and width of the output matrix without affecting the
 The last convolutional variable we'll cover is kernel size. In the example above and the majority of the U-Net, convolution is done with 3x3 kernels. They offer a local context while limiting the number of values in each convolution. They also prevent overt downsizing of matrix dimensions. Let's look at the effect of increasing kernel size to 5x5.
 
 <p align="center" width="100%">
-  <img src="/UNet/Images/convolution_kernel_five_by_five.png" width="45%">
+  <img src="/Images/convolution_kernel_five_by_five.png" width="45%">
 </p>
 
 We perform convolution with a stride of 1 and no padding. Increasing the kernel size to 5x5 shrinks the output matrix from 4x4 to 2x2. Interacting with more values at each convolution requires fewer operations to interact with the entirety of the input matrix. It can also affect the progression of image features. We can visualize this by comparing the original output matrix from a 3x3 kernel to our new output from a 5x5 kernel.
 
 <p align="center" width="100%">
-  <img src="/UNet/Images/convolution_kernel_size_results.png" width="30%">
+  <img src="/Images/convolution_kernel_size_results.png" width="30%">
 </p>
 
 Comparing these matrices, the increased kernel size seems to have overemphasized some features and underemphasized others. Broadening the window for every convolution operation resulted in an unbalanced impression of some features in the data. Increasing the kernel size compacted the number of interactions between the input matrix and the convolutional kernel, changing the features advanced by the network.
@@ -114,17 +114,17 @@ Stride, padding, and kernel size can all change a convolutional output. As demon
 ### Rectified Linear Unit (ReLU)
 Now that we understand convolution, let's talk about activation functions. Continuing with the matrix example, we can take the output matrix and apply an element-wise activation function. An activation function takes in a value and acts like a security checkpoint at the airport. At the airport, if you have a bottle with liquid over a certain volume, you must empty it before continuing. Rules are in place and if you fall short of those rules, you alter your input before proceeding. Depending on the value input to the activation function, it may allow that value to pass unaffected or reject the value and replace it with 0. These actions will also change depending on the respective activation function. The rectified linear unit (ReLU) activation function allows all nonnegative values to pass, and rejects negative values, setting them to 0.
 <p align="center" width="100%">
-  <img src="/UNet/Images/relu_activation_function.png" alt="A graph demonstrating the Rectified Linear Unit activation function" width="25%">
+  <img src="/Images/relu_activation_function.png" alt="A graph demonstrating the Rectified Linear Unit activation function" width="25%">
 </p>
 
 Let's take the output matrix from our initial convolution example and see how it's affected by the ReLU activation function. After passing the output matrix through the ReLU activation function, we have the following matrix. As you can see, only negative values were affected.
 <p align="center" width="100%">
-  <img src="/UNet/Images/matrix_after_activation.png" width="55%">
+  <img src="/Images/matrix_after_activation.png" width="55%">
 </p>
 
 By passing the output matrix through this activation function, we are zeroing all negative values. This is important. Activation functions take on the nonlinear responsibility of the network. Without introducing nonlinearity, we are bounding the network to linear representations. Regardless of the architecture or number of layers, a combination of linear operations will always result in a linear output and fail to capture a more complex relationship. This is illustrated in the graph below. We have a simple linear relationship (y=2x) and a more complex linear relationship (y=5(2(x-1)-2)-5). Both are attempting to model the quadratic relationship \(y= x^2\).
 <p align="center" width="100%">
-  <img src="/UNet/Images/linear_vs_nonlinear.png" alt="A simple example of linear operations failing to capture more complex data relationships"               width="30%">
+  <img src="/Images/linear_vs_nonlinear.png" alt="A simple example of linear operations failing to capture more complex data relationships"               width="30%">
 </p>
   
 Expressing this idea in 2-dimensions might seem reductive, but we can see that regardless of the number of operations in our linear relationship, we fail to adequately represent the quadratic curve. We can better capture it at a single instance, but linear operations will always fail to correctly model nonlinear relationships. Nonlinear activation functions allow us to represent more complex relationships in the data, a critical aspect of machine learning models. [Here is a video of Andrew Ng on nonlinear activation functions](https://www.youtube.com/watch?v=NkOv_k7r6no), explaining their functionality and importance if you want to learn more.
@@ -132,13 +132,13 @@ Expressing this idea in 2-dimensions might seem reductive, but we can see that r
 ### Down-sampling (Max Pooling)
 The stages mentioned above are repeated twice. The initial image is passed through a convolution operation, then ReLU, and that result is passed through another round of convolution and activation functions. Next, we arrive at the downsampling step, illustrated in the below diagram with a red arrow.
 <p align="center" width="100%">
-  <img src="/UNet/Images/first_downsampling_step.png" alt="The first max pooling operation performed on the contracting path of the U-Net" 
+  <img src="/Images/first_downsampling_step.png" alt="The first max pooling operation performed on the contracting path of the U-Net" 
         width="10%">
 </p>
 
 To downsample the matrix output, we perform a 2x2 max pooling operation. Max pooling maintains the most essential features of the image while condensing the information. Preservation of information while downsampling is crucial. Ultimately, the image will be condensed to a 28x28 representation. Any information lost during that compression will lead to poorer results at the model output. Below, we can revisit our matrix example. To preserve size, let's keep the matrix after one convolution operation and activation function, rather than the dual operations employed in the U-Net. At each 2x2 matrix subset, we highlight the most relevant value and pass it on to the output matrix (highlighted in green).
 <p align="center" width="100%">
-  <img src="/UNet/Images/max_pooling.png" alt="Example of a max pooling operation transforming a 4x4 matrix into a 2x2 matrix" width="35%">
+  <img src="/Images/max_pooling.png" alt="Example of a max pooling operation transforming a 4x4 matrix into a 2x2 matrix" width="35%">
 </p>
 
 By emphasizing the most relevant image features, we are also minimizing the less important features. The network is less concerned with discoloration or lighting of an image and focuses on the critical image features.
@@ -150,7 +150,7 @@ Let's take a step back and revisit convolution. They have an important feature I
 
 A good example is the RGB color space. RGB images are stored with three channels: red, green, and blue. Each channel focuses on one color in the image. We can look at the below image of a lake separated to its respective red, green, and blue channels. One channel in the image focuses on the intensity of red. Another focuses on the green, while the third channel focuses on the quantity of blue.
 <p align="center" width="100%">
-  <img src="/UNet/Images/image_channels.png" alt="An example image broken down to its respective red, green, and blue channels." width="75%">
+  <img src="/Images/image_channels.png" alt="An example image broken down to its respective red, green, and blue channels." width="75%">
 </p>
 <p align="center">
   <em>Image from https://e2eml.school/convert_rgb_to_grayscale</em>
@@ -158,7 +158,7 @@ A good example is the RGB color space. RGB images are stored with three channels
 
 Each cell in our matrices corresponds to one image pixel. The value of each cell illustrates the magnitude of the channel-specific color in that pixel of our image. In the example below, these values range from 0-1, with 0 demonstrating an absence of color and 1 representing the full color magnitude. The upper-left pixel in the image appears to be fairly split between red and blue with a smaller emphasis on green. The bottom-left pixel appears to have a heavy red influence, but green and blue are also apparent in that image pixel.
 <p align="center" width="100%">
-  <img src="/UNet/Images/channels.png" alt="An image matrix with pixel values corresponding to its red, green, and blue channels." width="25%">
+  <img src="/Images/channels.png" alt="An image matrix with pixel values corresponding to its red, green, and blue channels." width="25%">
 </p>
 <p align="center">
   <em>Image from https://e2eml.school/convert_rgb_to_grayscale</em>
@@ -168,7 +168,7 @@ The examples above explain the concept of image channels by tying each channel t
 
 The alternative to multiple channels for an image is only one channel. This is known as grayscale. If an image only has one channel, it lacks all of the other information we described. The channel is entirely devoted to the magnitude of gray in the image. A 0 in a pixel would represent white, and a 1 would represent black. Grayscale images only need one channel for information. When performing convolution, we control the number of channels in the output, allowing the network to broaden its image understanding. It can go beyond grayscale, and process multiple image features from different perspectives. In the paper, the first convolutional operation receives a grayscale image as input and converts it to 64 channels representing the image features. That diagram is presented below.
 <p align="center" width="100%">
-  <img src="/UNet/Images/unet_first_conv.png" width="10%">
+  <img src="/Images/unet_first_conv.png" width="10%">
 </p>
 
 Every rectangle indicating the image features will have the height and width dimensions near the bottom of the rectangle and the number of channels above the rectangle. A 572x572x1 image is input and broadened to 570x570x64. Our input image only holds one channel, as the biomedical images the network was trained on are all in grayscale. If we were training on RGB images, we could feed in images with 3 channels (572x572x3) and still have a 570x570x64 sized output. Convolution allows total control of the number of channels in an output image. Let's take a look at how that works.
@@ -179,51 +179,51 @@ In our initial convolution example, we explained that the convolutional filter w
 
 In our earlier convolution example, we treated a singular 6x6 matrix as a grayscale image. Now let's consider a two-channel image. Two 6x6 matrices will represent the image. Those matrices are given below, and will be highlighted in their respective colors throughout the illustration. Keep in mind this is an example, so the values for the image, convolutional kernels, and output are all arbitrary.
 <p align="center" width="100%">
-  <img src="/UNet/Images/two_channel_image.png" width="45%">
+  <img src="/Images/two_channel_image.png" width="45%">
 </p>
 
 If we want to expand this image to 3 channels, we would have one filter for each output channel. Each filter would have one kernel for each channel of the input image. For us, that means each filter will have two kernels. That gives us three filters (one for each output channel), each with two kernels (one for each input channel). The filters are given below and will be highlighted in yellow throughout the example.
 <p align="center">
-  <img src="/UNet/Images/unet_filter1.png" width="30%" />
+  <img src="/Images/unet_filter1.png" width="30%" />
 </p>
 <p align="center">
-  <img src="/UNet/Images/unet_filter2.png" width="30%" />
+  <img src="/Images/unet_filter2.png" width="30%" />
 </p>
 <p align="center">
-  <img src="/UNet/Images/unet_filter3.png" width="30%" />
+  <img src="/Images/unet_filter3.png" width="30%" />
 </p>
 
 Now, let's perform convolution with these three filters. Each kernel corresponds to one image input channel. The first kernel in each filter will only interact with the first image channel and the second kernel in each filter will only ever interact with the second image channel. Feeding in our image, we repeat the same convolutional process described above. To save space, I've abstracted the calculations, but feel free to work them out for yourself.
 <p align="center" width="100%">
-  <img src="/UNet/Images/unet_conv_filter1.png" width="45%">
+  <img src="/Images/unet_conv_filter1.png" width="45%">
 </p>
 
 We move on to the second convolutional filter and perform convolution across both kernels. Each kernel interacts with one image channel and we output two matrices.
 <p align="center" width="100%">
-  <img src="/UNet/Images/unet_conv_filter2.png" width="45%">
+  <img src="/Images/unet_conv_filter2.png" width="45%">
 </p>
 
 We repeat the process with the third and final filter, applying its two kernels across the input image.
 <p align="center" width="100%">
-  <img src="/UNet/Images/unet_conv_filter3.png" width="45%">
+  <img src="/Images/unet_conv_filter3.png" width="45%">
 </p>
 
 We've taken our 6x6x2 image input and, through convolution, arrived at 6 4x4 matrices for the output. You can see these matrices below.
 <p align="center" width="100%">
-  <img src="/UNet/Images/unet_total_conv_1.png" width="75%">
+  <img src="/Images/unet_total_conv_1.png" width="75%">
 </p>
 
 You'll notice we want a 4x4x3 output, but we currently have 6 channels. Each convolutional filter is responsible for one channel of the output image, so we sum across each filter. This is as simple as matrix addition and gives the expected image output of 4x4x3. That addition is illustrated below, along with the overall convolution result.
 <p align="center" width="100%">
-  <img src="/UNet/Images/unet_total_conv_2.png" width="65%">
+  <img src="/Images/unet_total_conv_2.png" width="65%">
 </p>
 <p align="center" width="100%">
-  <img src="/UNet/Images/unet_total_conv_3.png" width="70%">
+  <img src="/Images/unet_total_conv_3.png" width="70%">
 </p>
 
 We transformed our 6x6x2 input matrix into a 4x4x3 output. Convolution allowed the broadening of the two-channel image into three channels, offering additional perspectives for the network to better understand the image. Let's consider a higher-dimension example, the first convolution operation in the paper, but treat the input as an RGB image. In the paper, this is an expansion of a grayscale 572x572x1 image to 570x570x64. Instead, we'll be treating it as an RGB image of size 572x572x3 convolved to 570x570x64.
 <p align="center" width="100%">
-  <img src="/UNet/Images/unet_first_conv.png" width="10%">
+  <img src="/Images/unet_first_conv.png" width="10%">
 </p>
 
 This will be a very similar process to the one explained above. Again, we'll have one 3x3 kernel for each input channel. Since the input image is 572x572x3, we have 3 kernels per filter. We have one filter for each output channel of the convolved image. The output is going to be 570x570x64, so we need 64 filters. This gives us 64 filters (one for each output channel), each with 3 kernels (number of input channels) of dimension 3x3. Exactly like the example given above, each kernel corresponds to one input channel and outputs one matrix. Each kernel's output is then summed with the outputs of other kernels in the same filter, giving us one output channel per filter.
@@ -237,7 +237,7 @@ Now that we understand convolution with multiple channels, we can better underst
 ## Bridge
 The stages described above (3x3 convolution, ReLU, 3x3 convolution, ReLU, 2x2 max pooling) are repeated multiple times before arriving at the bridge, the bottom of the U-shaped architecture. This is our link between the contractive path we have descended and the expansive path we will soon ascend. Our image is at its smallest dimensions. From our initial 572x572x1 matrix, we have arrived at a 32x32x512 representation. This is the output of the final max pooling operation (red arrow below) and serves as the input to the bridge.
 <p align="center" width="100%">
-  <img src="/UNet/Images/bridge.png" alt="Diagram of the bridge of the U-Net architecture taken from the corresponding 2015 research paper" width="55%">
+  <img src="/Images/bridge.png" alt="Diagram of the bridge of the U-Net architecture taken from the corresponding 2015 research paper" width="55%">
 </p>
 
 At these smaller dimensions, information preservation is critical. Our progress thus far, descending the contracting path and filtering the most important features, is redundant if information is lost at this bottleneck. Preserving relevant information from multiple perspectives was the motivation behind expanding the number of channels for the image features. We continue that process at the bridge, doubling the number of channels to 1024. Concurrently, we apply another convolution and activation function operation. This is the bottom of the network. We are focusing on the minutiae of our technique. You're practicing keeping your hands high running around the screen to catch the ball. You're staying on the tips of your toes in the act of catching the ball. You're training the flick of your wrist when releasing the ball for a shot. We are simultaneously practicing these micro details in 1024 different situations to determine the significant aspects of our technique we'll maintain when scaling our technique back up to the macro level. The U-Net is scrutinizing the image features that have been propagated to the bridge and retaining the features it considers essential. We apply one more convolution and activation function pairing before beginning the process of reassembling our image from its features and scaling back up to pixel-space. 
@@ -250,7 +250,7 @@ After we arrived at the bottom of the U, our image features reached their smalle
 ### Skip Connections
 As we ascend the expansive path, we notice a significant change in the architecture from the contracting path. Skip connections, or connecting paths, offer an opportunity for the network to augment its learning at every decoding step through information from the corresponding encoding step. Skip connections link images at similar stages in their respective processes. These connections across the architecture boost the image understanding. Images from the contracting path are cropped and concatenated onto the expansive path images. Since images are taken from equivalent steps in their respective processes, they have an equal number of channels. The expansive path images, immediately following upsampling (represented by the green arrow below), are augmented with their counterparts and the number of channels is doubled. Images from the contracting path are cropped so that they fit the size of their respective stage in the expansive path. In the illustration below, decoding stage images have dimensions of 392x392x64, represented as the blue half of the rectangle above the green arrow. Encoding stage images have dimensions of 568x568x64 and are cropped to match the height and width of their decoding stage counterparts. The crop is denoted by the dotted blue lines and the connecting path is illustrated by the gray arrow in the image below. After concatenating the two groups of image features together, we arrive at a 392x392x128 matrix representation. The concatenated contracting path image features are depicted as a white rectangle extending the expansive path image features.
 <p align="center" width="100%">
-  <img src="/UNet/Images/connecting_path_crop.png" alt="Crop of the U-Net architecture taken from the corresponding 2015 research paper" width="60%">
+  <img src="/Images/connecting_path_crop.png" alt="Crop of the U-Net architecture taken from the corresponding 2015 research paper" width="60%">
 </p>
 
 The benefit here is that by combining the features present at the encoder stage with those present at the decoder stage, we obtain a more complete understanding of the image. We augment the learned semantic features of the data at the decoding stage with the spatial data provided by their encoding stage counterparts. Image channels contribute to the network's image comprehension, and concatenating decoding stage channels with their encoding stage complements provides additional context on the proximity and proportionality of image features. By concatenating the encoder stage representations to the decoder stage, we gain information from a higher resolution image and allow for more accurate image reconstruction. 
@@ -259,17 +259,17 @@ Throughout our basketball analogy, we've been breaking down the act of shooting 
 
 This concept is illustrated below, visualizing the learned semantic information present at the decoder stage, the spatial information present at the encoder stage, and the benefit of concatenating both stages. This illustration is taken from [a video](https://www.youtube.com/watch?v=NhdzGfB1q74) explaining the overall U-Net architecture and its functionality.
 
-<img src="/UNet/Images/decoder_stage_sc.png" width="33%" /> <img src="/UNet/Images/encoder_stage_sc.png" width="33%" /> <img src="/UNet/Images/combined_stage_sc.png" width="33%" />
+<img src="/Images/decoder_stage_sc.png" width="33%" /> <img src="/Images/encoder_stage_sc.png" width="33%" /> <img src="/Images/combined_stage_sc.png" width="33%" />
 
 ### Up-Sampling
 Upsampling is a two-stage approach: nearest neighbor interpolation followed by a 2x2 convolution. Nearest neighbor interpolation functions by expanding each image feature's footprint. We quadruple the matrix size by doubling the number of rows and doubling the number of columns in the data. We can convert a 2x2 matrix to a 4x4 matrix by doubling the representation of each value horizontally and vertically, as seen below.
 <p align="center" width="100%">
-  <img src="/UNet/Images/simple_upsampling.png" alt="Matrix example of simple upsampling operation" width="45%">
+  <img src="/Images/simple_upsampling.png" alt="Matrix example of simple upsampling operation" width="45%">
 </p>
 
 We quadruple every instance of the previous values to double the matrix's rows and columns, a quick and easy approach to increase the height and width dimensions. After descending the contractive path, and compacting the image information, ascending the expansive path is focused on restoring the image to its original dimensions, while maintaining the features discovered through the descent. Nearest neighbor interpolation offers a quick upsampling operation without affecting the learned features.
 <p align="center" width="100%">
-  <img src="/UNet/Images/upsampling_step.png" alt="The last upsampling operation performed on the expanding path of the U-Net" width="30%">
+  <img src="/Images/upsampling_step.png" alt="The last upsampling operation performed on the expanding path of the U-Net" width="30%">
 </p>
 
 Directly following the nearest neighbor operation, we perform 2x2 convolution. Let’s look at an example. In the diagram above, the number of channels remains the same between upsampling (green arrow) and concatenating the encoder stage images with the decoder stage images (gray arrow). Two steps are performed sequentially in the green arrow illustrated above. 
@@ -285,13 +285,13 @@ Throughout the decoding path, the convolution and activation function operations
 
 #### Final Layer (1x1 Convolution)
 <p align="center" width="100%">
-  <img src="/UNet/Images/unet_architecture.png" alt="A screenshot of the UNet architecture from its corresponding 2015 research paper" width="65%">
+  <img src="/Images/unet_architecture.png" alt="A screenshot of the UNet architecture from its corresponding 2015 research paper" width="65%">
 </p>
 
 We've propagated our image through the network, arriving at the final location to output our segmented image and measure our success. We've upscaled our image to the correct height and width, roughly matching the original pixel-space image dimensions. However, we have an incorrect number of channels. We can resolve this through 1x1 convolution. Convolution with 1x1 kernels operates on a per-pixel level across every channel. It assimilates each channel’s pixel-specific information and outputs those values into the preferred number of output channels. In this case, receiving features with 64 channels and outputting 2 channels requires 2 convolutional filters. Each filter contains 64 kernels of size 1x1. [This video](https://www.youtube.com/watch?v=c1RBQzKsDCk) offers a great explanation on 1x1 convolutions, their utility, and use cases.
 
 <p align="center" width="100%">
-  <img src="/UNet/Images/unet_final_conv.png" alt="The final convolution operation taken from the Unet research paper" width="25%">
+  <img src="/Images/unet_final_conv.png" alt="The final convolution operation taken from the Unet research paper" width="25%">
 </p>
 
 After feeding the image features through the network from start-to-finish, we are now ready to measure our performance. Was our network successful in picking up the relevant information of the image? Could the model correctly segment that information, highlighting the appropriate segmentation area? Was the information correctly upscaled? Does everything in the output image look proportional? Let's compare our output to the provided ground-truth image and quantify our success.
@@ -300,19 +300,19 @@ After feeding the image features through the network from start-to-finish, we ar
 We've done it. We've practiced setting our feet coming around the screen, we've practiced our hand positioning, and we've practiced our follow-through. We've spent time practicing each part of the technique separately and now it's time to put it all together. You run around the screen, catch the ball, shoot, and... CLANGGGG! Off front-rim. What happened? Somehow, somewhere, something went wrong. You weren't expecting to get it right on your first attempt, were you? Despite the time and energy spent practicing your technique, something was off. Maybe it was the positioning of your feet. Maybe it was your release point. This is a learning process. With time, you'll be able to adjust your shot as you learn what a good shot looks like versus a bad shot. That learning process is exactly what happens with neural networks.
 
 <p align="center" width="100%">
-  <img src="/UNet/Images/unet_output_diagram.png" width="70%">
+  <img src="/Images/unet_output_diagram.png" width="70%">
 </p>
 
 After the model outputs its predicted segmentation image, we compare the model's output to the provided ground-truth image, as illustrated above. The ground-truth image is the correct, expected answer. Any difference between the model output and the ground-truth is considered the loss. The function comparing the model output is logically called the loss function. The U-Net's loss function is cross-entropy. To perform cross-entropy, we first need to perform the softmax function. We apply the softmax function across the image’s two channels, funneling the result into cross-entropy to compute the overall loss.
 
 <p align="center" width="100%">
-  <img src="/UNet/Images/softmax_diagram.png" width="50%">
+  <img src="/Images/softmax_diagram.png" width="50%">
 </p>
 
 Softmax takes the network's output across two channels and converts the raw values to probabilities. It funnels the network's calculations into a likelihood comparing each channel's probability per pixel. These probabilities sum to 1, as you can see above. Softmax calculates the likelihood that channel 0 (no segmentation) or channel 1 (segmentation area) is dominant. This is pertinent, because the ground-truth image is also full of 1's and 0's. A 0 denotes no segmentation, while a 1 denotes an area of interest that should be segmented. 
 
 <p align="center" width="100%">
-  <img src="/UNet/Images/cross_entropy.png" width="50%">
+  <img src="/Images/cross_entropy.png" width="50%">
 </p>
 
 Cross-entropy receives both the model output (converted to probabilities, thanks to the softmax function) and the ground-truth image (all integers, 0 or 1). It penalizes every pixel position for its distance from the correct label. If the softmax function predicts that channel 0 was dominant at a certain pixel with 0.9 probability, the model receives a slight loss. If the channel outputs a 0.3 probability, that loss is larger. With this approach, all image channels are encouraged to match the true image labels and incorrect predictions are punished. The loss value determines the magnitude of correction. If we shoot the ball and it hits the front rim, we can recognize the shot missed, but it was fairly close. If we fail to make contact with the rim, backboard, or any part of the hoop, we need to make a larger correction to our shot. The magnitude of our loss determines the weight of correction necessary to improve future predictions. The learning of the network, tied to that loss, is backpropagation.
@@ -325,7 +325,7 @@ Below, we’ll touch on a pair of ideas adjacent to the U-Net and its training t
 
 ### Data Augmentation
 <p align="center" width="100%">
-  <img src="/UNet/Images/data_augmentation.png" alt="An example image showing data augmentation variations" width="50%">
+  <img src="/Images/data_augmentation.png" alt="An example image showing data augmentation variations" width="50%">
 </p>
 
 When training on a limited set of images, as with biomedical image segmentation, it is important to maximize the value extracted from the training set. Data augmentation plays a large role in the success of the U-Net with biomedical image segmentation by increasing the number of potential data samples through geometric or elastic shifts. Data augmentation might flip the images horizontally or vertically, rotate, crop, or change the saturation of the images. The intent is to present the images in as many different conditions as possible, such that the network can identify images regardless of their surrounding environment. By presenting images in different environments, the network learns to identify objects regardless of their context.
