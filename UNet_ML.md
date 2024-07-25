@@ -1,4 +1,4 @@
-![A screenshot of the UNet architecture from its corresponding 2015 research paper](/UNet/Images/unet_architecture.png)
+![A screenshot of the UNet architecture from its corresponding 2015 research paper](/Images/unet_architecture.png)
 
 # U-Net
 
@@ -19,7 +19,7 @@ Convolution analyzes windows of the image at a time. Propagation of image featur
 ### Contracting Path (Encoder)
 
 <p align="center" width="100%">
-  <img src="/UNet/Images/first_downsampling_step.png" alt="The first max pooling operation performed on the contracting path of the U-Net" width="20%"
+  <img src="/Images/first_downsampling_step.png" alt="The first max pooling operation performed on the contracting path of the U-Net" width="20%"
 </p>
 
 In the encoding path, the described blocks (depicted as blue arrows in the above diagram) are applied twice before changing the feature dimensions. This is consistent throughout the contracting path: image features are passed through two blocks of convolution and activation function operations before being downsampled. The first block is also responsible for doubling the number of channels of the image features. As the image features are continuously contracted, doubling the number of channels mitigates the risk of information loss, allowing the network additional avenues to analyze the image data.
@@ -29,7 +29,7 @@ Each downsampling operation (red arrow in the above diagram) is a 2x2 max poolin
 ### Bridge
 
 <p align="center" width="100%">
-  <img src="/UNet/Images/bridge.png" alt="Diagram of the bridge of the U-Net architure taken from the corresponding 2015 research paper" width="35%"
+  <img src="/Images/bridge.png" alt="Diagram of the bridge of the U-Net architure taken from the corresponding 2015 research paper" width="35%"
 </p>
 
 After repeated downsampling, image features arrive at the bridge, illustrated above. The bridge, or bottleneck, of the architecture serves a nominal responsibility. Connecting the encoder and decoder stages of the network, it performs the same convolution and activation function sequence as encountered in the encoding stage. One of two connection structures between the encoding and decoding paths, it reduces image features to their lowest dimensionality before advancing features to the expanding path.
@@ -39,21 +39,21 @@ For custom architectures, the location of the bridge in the architecture is a de
 ### Skip connections
 
 <p align="center" width="100%">
-  <img src="/UNet/Images/connecting_path_crop.png" alt="Crop of the U-Net architure taken from the corresponding 2015 research paper" width="75%"
+  <img src="/Images/connecting_path_crop.png" alt="Crop of the U-Net architure taken from the corresponding 2015 research paper" width="75%"
 </p>
 
 Skip connections (gray arrow in the above diagram) offer another framework for linking the encoder and decoder, connecting corresponding stages symmetrically across the architecture. After passing through an encoding stage (prior to being downsampled), image features are transmitted across the architecture and concatenated onto the equivalent decoding stage. The original research paper accomplished this by cropping the encoder stage image features to satisfy the dimensions of the decoder stage features. Implementing padding for convolution eliminates this requirement.
 
 Skip connections concatenate decoder features with their mirrored encoded features. Decoded features often contain the image's semantic information, while encoded features will highlight spatial information. By concatenating these representations with each other, the network benefits from both contexts. A simplified visualization of this can be seen below, taken from [this video](https://www.youtube.com/watch?v=NhdzGfB1q74) explaining the U-Net architecture.
 
-<img src="/UNet/Images/decoder_stage_sc.png" width="33%" /> <img src="/UNet/Images/encoder_stage_sc.png" width="33%" /> <img src="/UNet/Images/combined_stage_sc.png" width="33%" />
+<img src="/Images/decoder_stage_sc.png" width="33%" /> <img src="/Images/encoder_stage_sc.png" width="33%" /> <img src="/Images/combined_stage_sc.png" width="33%" />
 
 Augmenting the semantic decoder-stage image features with their spatially aware encoder-stage counterparts allows the network to fixate on the physical position of image features, contributing to the U-Net’s groundbreaking success on computer vision tasks.
 
 ### Upsampling
 
 <p align="center" width="100%">
-  <img src="/UNet/Images/upsampling_step.png" alt="The last upsampling operation performed on the expanding path of the U-Net" width="40%"
+  <img src="/Images/upsampling_step.png" alt="The last upsampling operation performed on the expanding path of the U-Net" width="40%"
 </p>
 
 Decoding the encoded features involves a similar process to the encoding path, in reverse. After distilling the image to its most important features, the image now needs to be reconstructed to its original dimensions. The encoding path employs downsampling for control of the image feature dimensions, and the decoding path employs upsampling (illustrated as the green arrow above) to rescale image information.
