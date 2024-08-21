@@ -335,4 +335,4 @@ Machine learning models quickly become familiar with training images. As a resul
 
 # The End
 
-Thank you for reading! I hope you enjoyed this explanation of the U-Net, intended for readers without any background ML knowledge to understand the architecture and training process of the model. Feel free to check out some of my other model explanations in their respective folders!
+Thank you for reading! I hope you enjoyed this explanation of the U-Net, intended for readers without any background ML knowledge to understand the architecture and training process of the model. Feel free to check out some of my [other model explanations](https://github.com/ejohansson13/concepts_explained) in their respective repositories!
