@@ -2,7 +2,7 @@
 
 # U-Net
 
-The original U-Net research paper was released in 2015 and demonstrated SOTA performance with biomedical image segmentation. The architecture's success with a small dataset announced its efficacy for computer vision tasks. Designed for localization, the symmetric design shared feature channels across the contracting and expansive paths. The amalgamation of upsampled features with their contracting path complements produced additional context as the network propagated image features and determined labels for individual pixels in the image.
+The original U-Net research paper was released in 2015 and demonstrated SOTA performance with biomedical image segmentation. The architecture's success with a small dataset announced its efficacy for computer vision tasks. Designed for precise localization, the symmetric design shared feature channels across the contracting and expansive paths. The amalgamation of upsampled features with their contracting path complements produced additional context as the network propagated image features and determined labels for individual pixels in the image.
 
 This page will discuss the U-Net and its architecture. It assumes familiarity with machine learning technology and operations. If you don't have any machine learning experience, check out my [other page on the U-Net](https://github.com/ejohansson13/concepts_explained/blob/main/UNet/UNet.md), which makes no assumptions of a machine learning background.
 
@@ -12,9 +12,13 @@ The U-Net is a convolutional neural network following an encoder-decoder archite
 
 ### Convolution Block
 
-The U-Net architecture is a sequence of blocks responsible for carrying out the primary function of the network: feature analysis. These blocks have the same composition: convolution with a 3x3 kernel, the ReLU function applied elementwise, a second 3x3 convolution, and a second ReLU function. In the original paper, every convolution operation utilized a 3x3 kernel, a stride of 1, and no padding. Newer variations of the U-Net have opted for padding to prevent dimensionality loss.
+The U-Net architecture consists of a sequence of blocks responsible for image feature analysis. These blocks have the same composition: convolution with a 3x3 kernel, the ReLU function applied elementwise, a second 3x3 convolution, and a second ReLU function. In the original paper, every convolution operation utilized a 3x3 kernel, a stride of 1, and no padding. Newer variations of the U-Net have opted for padding to prevent dimensionality loss.
 
-Convolution analyzes windows of the image at a time. Propagation of image features through these blocks ensures local feature analysis through convolution. The repeated applications of convolution act as decision-makers weighting the most important image features. Applying activation functions directly following convolution introduces nonlinearity to accurately model the complex relationships in visual data. Constructing the U-Net architecture with these blocks ensures consistent, localized feature analysis and complex modeling of propagated features.
+<p align="center" width="100%">
+  <img src="/Images/convolution_block.png" width="80%"
+</p>
+
+Convolution analyzes windows of the image at a time. Propagation of image features through these blocks ensures local feature analysis. Repeated convolution acts as a decision-maker, weighting the most important image features. Applying activation functions directly following convolution introduces nonlinearity to accurately model the complex relationships in visual data. Constructing the U-Net architecture with these blocks ensures consistent, localized feature analysis and complex modeling of propagated features.
 
 ### Contracting Path (Encoder)
 
